@@ -1,3 +1,5 @@
+#importing libraries
+
 from flask import Flask, render_template, request, redirect, url_for, flash
 from flask_wtf import FlaskForm
 from wtforms import StringField, TextAreaField, SelectField, RadioField,BooleanField
@@ -7,26 +9,27 @@ import re
 
 app = Flask(__name__)
 
+# defining a function to sanitize input
 def sanitize_input(input_str):
     return input_str.strip()
 
+#check that the input email is in valid format
 def validate_email(email):
     email_regex = r'^\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,}\b'
     return re.match(email_regex, email)
-
-
 
 def sanitize_input(input_data):
     allowed_tags = ['b', 'i', 'u', 'em', 'strong', 'a']
     return bleach.clean(input_data, tags=allowed_tags, strip=True)
 
-
+#creating route to the index page accepting only GET and POST request
 @app.route('/', methods=['GET' , 'POST'] )
 def forms():
     return render_template('forms.html')
 
 @app.route('/data', methods=['POST', "GET"])
 def data():
+    # condition of the request if post 
     if request.method == 'POST':
         data = request.form
         firstName = sanitize_input(request.form.get('first_name'))
@@ -39,7 +42,8 @@ def data():
         commande_check = request.form.get('commandecheck')
         autre_check = request.form.get('Autrecheck')
         print(firstName,lastName,email,country)
-        
+
+        #print the data + the feedback once the form is completed and sent 
         response = (
                 f"Thank you for reaching us.<br>"
                 f"First Name: {firstName}<br>"
@@ -55,6 +59,7 @@ def data():
 
         return response
     else:
+        # if method is not POST then redirect to the form
         return redirect(url_for('forms'))
 
 if __name__ == "__main__":
